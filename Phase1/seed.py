@@ -3,7 +3,7 @@ import random
 
 def seed_data():
     # Connect to your existing database
-    conn = sqlite3.connect("health.db")
+    conn = sqlite3.connect("scholarship.db")
     cursor = conn.cursor()
 
     # 20 Realistic Malaysian Dummy Data Profiles
