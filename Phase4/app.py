@@ -1,7 +1,24 @@
 from flask import Flask, request, render_template
-import sqlite3
+from pymongo import MongoClient
+import datetime
 
 app = Flask(__name__)
+
+# ==========================================
+# MONGO DATABASE INITIALIZATION
+# ==========================================
+# Connect to local MongoDB instance
+client = MongoClient("mongodb://localhost:27017/")
+db = client["scholarship_system"]
+collection = db["health_records"]
+
+def init_db():
+    print("Initializing MongoDB collections and TTL indexes...")
+    # Create a native TTL index on the "expires_at" field.
+    # expireAfterSeconds=0 tells Mongo to delete the document exactly when the clock hits 'expires_at'
+    collection.create_index("expires_at", expireAfterSeconds=0)
+
+init_db()
 
 # ==========================================
 # PRIVACY ENGINEERING HELPER FUNCTIONS
@@ -9,9 +26,7 @@ app = Flask(__name__)
 def determine_financial_tier(family_income, household_size):
     if not household_size or household_size <= 0:
         return 4
-        
     per_capita_income = family_income / household_size
-
     if per_capita_income <= 2500:
         return 4  
     elif per_capita_income <= 5000:
@@ -30,29 +45,6 @@ def determine_academic_tier(CGPA):
         return 3
     else:
         return 4
-
-# =========================
-# DATABASE INITIALIZATION
-# =========================
-def init_db():
-    conn = sqlite3.connect("scholarship.db")
-    cursor = conn.cursor()
-
-    # Schema updated to use an integer 'financial_tier' instead of a boolean
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS health_records (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        student_id TEXT, 
-        academic_tier INTEGER,
-        require_medical_attention BOOLEAN,
-        financial_tier INTEGER
-    )
-    """)
-
-    conn.commit()
-    conn.close()
-
-init_db()
 
 # =========================
 # HOME PAGE
@@ -78,41 +70,41 @@ def submit_form():
         except ValueError:
             return default
 
-    # Capture transient raw parameters in-memory
+    # Capture raw form entries
     student_id = request.form.get('student_id', '').strip()
     CGPA = safe_float(request.form.get('CGPA'))
     family_income = safe_float(request.form.get('family_income'))
     household_size = safe_int(request.form.get('household_size'))
     medication_problems = request.form.get('medication_problems', '').strip()
     
-    # Execute Phase 4 Data Minimization and Transformation
+    # Process privacy abstractions
     academic_tier = determine_academic_tier(CGPA)
     financial_tier = determine_financial_tier(family_income, household_size)
+    require_medical_attention = False if (not medication_problems or medication_problems.lower() == "none") else True
 
-    if not medication_problems or medication_problems.lower() == "none":
-        require_medical_attention = False
-    else:
-        require_medical_attention = True
+    # MongoDB CRITICAL: Native TTL indexes require a standard Python datetime object, NOT an ISO string
+    retention_days = 30
+    expiration_datetime = datetime.datetime.utcnow() + datetime.timedelta(days=retention_days)
 
-    # Connect to SQLite database
-    conn = sqlite3.connect("scholarship.db")
-    cursor = conn.cursor()
+    # Build document dictionary payload
+    application_document = {
+        "student_id": student_id,
+        "academic_tier": academic_tier,
+        "require_medical_attention": require_medical_attention,
+        "financial_tier": financial_tier,
+        "expires_at": expiration_datetime  # Tracked by native TTL background loop
+    }
 
-    # Commit only the non-identifiable, derived tier matrices
-    cursor.execute("""
-    INSERT INTO health_records (student_id, academic_tier, require_medical_attention, financial_tier)
-    VALUES (?, ?, ?, ?)
-    """, (student_id, academic_tier, require_medical_attention, financial_tier))
+    # Insert into MongoDB collection
+    result = collection.insert_one(application_document)
     
-    conn.commit()
-    record_id = cursor.lastrowid
-    formatted_id = f"{record_id:05}"
-    conn.close()
+    # Convert MongoDB's native ObjectId to a readable string representation
+    formatted_id = str(result.inserted_id)
 
     return f"""
-    <h2>Application Processed Successfully!</h2>
-    <p>Your Privacy-Minimized Record ID: {formatted_id}</p>
-    <p style="color: green;">✓ Privacy Control Verified: Raw financial details were dropped and securely abstracted into Financial Tier {financial_tier}.</p>
+    <h2>Application Logged inside MongoDB!</h2>
+    <p>Your Document Object ID: {formatted_id}</p>
+    <p style="color: blue;">⏱️ Native MongoDB TTL Active: Document will be dropped automatically by MongoDB's background thread in 30 days.</p>
     <a href="/">Back to Form</a>
     """
 
