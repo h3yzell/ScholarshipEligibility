@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scholarship Eligibility Check</title>
+    <title>Scholarship Application</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
@@ -13,7 +13,7 @@
 
     <div class="header">
         <p class="header-label">Application Form</p>
-        <h1>Scholarship<br>Eligibility Check</h1>
+        <h1>Scholarship<br>Application</h1>
         <div class="header-divider"></div>
     </div>
 
@@ -80,8 +80,8 @@
         <div class="section">
             <p class="section-title">Additional Information</p>
             <div class="field">
-                <label for="medication_problems">Medical Conditions <span style="font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span></label>
-                <textarea id="medication_problems" name="medication_problems" placeholder="Describe any medical conditions relevant to your application…"></textarea>
+                <label for="medication_problems">Medical Conditions</label>
+                <textarea id="medication_problems" name="medication_problems" placeholder="Describe any medical conditions relevant to your application…" required></textarea>
                 <span class="field-hint">Leave blank if not applicable.</span>
             </div>
         </div>
@@ -95,7 +95,7 @@
     </form>
 
     <div class="footer-mark">
-        Scholarship Eligibility Portal &mdash; Confidential
+        Scholarship Application Portal &mdash; Confidential
     </div>
 
 </div>
