@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Connect to local MongoDB instance
 client = MongoClient("mongodb://localhost:27017/")
 db = client["scholarship_system"]
-collection = db["health_records"]
+collection = db["scholarship_records"]
 
 def init_db():
     print("Initializing MongoDB collections and TTL indexes...")

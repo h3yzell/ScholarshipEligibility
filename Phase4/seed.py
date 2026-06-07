@@ -5,7 +5,7 @@ import datetime
 # Setup Mongo Connection
 client = MongoClient("mongodb://localhost:27017/")
 db = client["scholarship_system"]
-collection = db["health_records"]
+collection = db["scholarship_records"]
 
 def determine_financial_tier(family_income, household_size):
     if not household_size or household_size <= 0:
@@ -49,8 +49,7 @@ def seed_mongodb(records_count=10000):
         academic_tier = determine_academic_tier(raw_cgpa)
         financial_tier = determine_financial_tier(raw_income, raw_household)
         require_medical_attention = True if has_medical else False
-        
-        # Set a short 60-second expiration offset to make testing easier
+
         expiration_datetime = datetime.datetime.utcnow() + datetime.timedelta(days=30)
 
         # Assemble individual BSON-mappable document items

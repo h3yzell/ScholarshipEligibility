@@ -5,7 +5,7 @@ import time
 # Connect to your local MongoDB Service
 client = MongoClient("mongodb://localhost:27017/")
 db = client["scholarship_system"]
-collection = db["health_records"]
+collection = db["scholarship_records"]
 
 def live_ttl_demo():
     print("=" * 60)
