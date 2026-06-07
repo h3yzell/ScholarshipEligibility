@@ -51,7 +51,7 @@ def seed_mongodb(records_count=10000):
         require_medical_attention = True if has_medical else False
         
         # Set a short 60-second expiration offset to make testing easier
-        expiration_datetime = datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
+        expiration_datetime = datetime.datetime.utcnow() + datetime.timedelta(days=30)
 
         # Assemble individual BSON-mappable document items
         doc = {
