@@ -1,0 +1,6 @@
+# Ignore any SQLite database file in any subfolder (Phase1, Phase4, etc.)
+**/scholarship.db
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
