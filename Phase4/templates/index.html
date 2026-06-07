@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scholarship Eligibility Check</title>
+    <title>Scholarship Application</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
@@ -12,35 +12,13 @@
 <div class="container">
 
     <div class="header">
-        <p class="header-label">Application Form</p>
-        <h1>Scholarship<br>Eligibility Check</h1>
+        <p class="header-label">Application Portal (Phase 4 Privacy Implementation)</p>
+        <h1>Scholarship<br>Application</h1>
         <div class="header-divider"></div>
     </div>
 
     <form action="/submitForm" method="POST" novalidate>
 
-        <!-- Personal Information -->
-        <div class="section">
-            <p class="section-title">Personal Information</p>
-            <div class="field-grid">
-                <div class="field">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="As per IC" required>
-                </div>
-            </div>
-            <div class="field-grid cols-2" style="margin-top: 20px;">
-                <div class="field">
-                    <label for="ic">IC Number</label>
-                    <input type="text" id="ic" name="ic" placeholder="e.g. 990101-14-1234" required>
-                </div>
-                <div class="field">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" placeholder="e.g. 012-345 6789" required>
-                </div>
-            </div>
-        </div>
-
-        <!-- Academic Information -->
         <div class="section">
             <p class="section-title">Academic Information</p>
             <div class="field-grid cols-2">
@@ -53,15 +31,8 @@
                     <input type="number" id="CGPA" name="CGPA" step="0.01" min="0" max="4.00" placeholder="0.00 – 4.00" required>
                 </div>
             </div>
-            <div class="field-grid" style="margin-top: 20px;">
-                <div class="field">
-                    <label for="education">Level of Education</label>
-                    <input type="text" id="education" name="education" placeholder="e.g. Bachelor of Science" required>
-                </div>
-            </div>
         </div>
 
-        <!-- Financial Information -->
         <div class="section">
             <p class="section-title">Financial Background</p>
             <div class="field-grid cols-2">
@@ -76,17 +47,15 @@
             </div>
         </div>
 
-        <!-- Additional Information -->
         <div class="section">
             <p class="section-title">Additional Information</p>
             <div class="field">
                 <label for="medication_problems">Medical Conditions <span style="font-weight:300;text-transform:none;letter-spacing:0;">(optional)</span></label>
                 <textarea id="medication_problems" name="medication_problems" placeholder="Describe any medical conditions relevant to your application…"></textarea>
-                <span class="field-hint">Leave blank if not applicable.</span>
+                <span class="field-hint">Note: Raw text descriptions are processed in transit to set an accessibility flag and are immediately destroyed. No medical text logs are stored in our database.</span>
             </div>
         </div>
 
-        <!-- Submit -->
         <div class="submit-area">
             <button type="submit" class="btn-submit">Submit Application</button>
             <p class="submit-note">All fields marked as required<br>must be completed.</p>
@@ -95,7 +64,7 @@
     </form>
 
     <div class="footer-mark">
-        Scholarship Eligibility Portal &mdash; Confidential
+        Scholarship Application Portal &mdash; Encrypted & Minimized
     </div>
 
 </div>
