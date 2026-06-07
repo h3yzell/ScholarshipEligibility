@@ -35,7 +35,7 @@ def determine_academic_tier(CGPA):
 # ==========================================
 # SEED SCRIPT EXECUTION
 # ==========================================
-def seed_database(records_count=200):
+def seed_database(records_count=10000):
     print(f"Connecting to {DB_NAME}...")
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -53,36 +53,37 @@ def seed_database(records_count=200):
 
     print(f"Generating {records_count} privacy-minimized mock student profiles...")
     
-    seeded_records = 0
+    # Using a list to gather data for a fast batch insert
+    data_batch = []
+    
     for i in range(1, records_count + 1):
-        # 1. Simulate Transient Inputs (Generated in memory, never saved to DB)
-        student_num = 10000000 + i  # Generates sequential IDs like S10000001
+        # 1. Simulate Transient Inputs (In-memory only)
+        student_num = 10000000 + i  
         student_id = f"S{student_num}"
         
-        # Randomly generate values skewed realistic scholarship applicants
         raw_cgpa = round(random.uniform(2.0, 4.0), 2)
         raw_income = round(random.uniform(1500.0, 45000.0), 2)
         raw_household = random.randint(1, 8)
         
-        # Simulate text responses for medical conditions (20% chance of an issue)
         has_medical = random.random() < 0.20 
         
-        # 2. Execute Data Minimization and Transformation Transformations
+        # 2. Execute Privacy Attribute Transformations
         academic_tier = determine_academic_tier(raw_cgpa)
         financial_tier = determine_financial_tier(raw_income, raw_household)
         require_medical_attention = 1 if has_medical else 0
 
-        # 3. Commit only the non-identifiable, derived tier matrices
-        cursor.execute("""
-        INSERT INTO health_records (student_id, academic_tier, require_medical_attention, financial_tier)
-        VALUES (?, ?, ?, ?)
-        """, (student_id, academic_tier, require_medical_attention, financial_tier))
-        
-        seeded_records += 1
+        # Append the tuple to our batch list instead of running individual SQL writes
+        data_batch.append((student_id, academic_tier, require_medical_attention, financial_tier))
 
+    # 3. Fast Batch Commit
+    cursor.executemany("""
+    INSERT INTO health_records (student_id, academic_tier, require_medical_attention, financial_tier)
+    VALUES (?, ?, ?, ?)
+    """, data_batch)
+        
     conn.commit()
     conn.close()
-    print(f"Successfully seeded {seeded_records} records into the database.")
+    print(f"Successfully seeded {len(data_batch)} records into the database.")
 
 if __name__ == "__main__":
-    seed_database(200)
+    seed_database(10000)
